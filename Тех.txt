@@ -1,0 +1,434 @@
+\documentclass{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[russian]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+
+\author{Автор}
+
+\begin{document}
+
+\begin{titlepage}
+\newpage
+\begin{center}
+{МОСКОВСКИЙ ГОСУДАРСТВЕННЫЙ УНИВЕРСИТЕТ имени М.В. ЛОМОНОСОВА\\
+\hrulefill\\
+
+ФИЗИЧЕСКИЙ ФАКУЛЬТЕТ}
+\vspace{6cm}
+
+
+\Large{\textbf{Отчет по практическому заданию №1}}\\
+Основы математического моделирования\\
+\vspace{0,3cm}
+Решение квазилинейного уравнения в частных производных первого порядка с использованием схемы бегущего счета и итерационных методов
+\end{center}
+\vspace{4cm}
+\begin{flushright}
+Автор работы:\\
+студент группы 325\\
+Шевченко Даниил Александрович\\
+\end{flushright}
+\vspace{6cm}
+\begin{center}
+Москва -- 2023
+\end{center}
+
+\end{titlepage}
+
+\clearpage
+\setcounter{page}{2}
+
+\tableofcontents
+
+\clearpage
+
+
+
+
+\section{Постановка задачи}
+Используя схему бегущего счета и итерационные методы, решить задачу:
+\begin{equation}
+\label{nachzad}
+\begin{cases}
+\vspace{0.2cm}
+\displaystyle \frac{\partial u}{\partial t} - \frac{2+\cos{u}}{1+(2u+1+\sin{u})^2}\frac{\partial u}{\partial x} = 0, -1\leq x<0\\
+\vspace{0.2cm}
+\displaystyle u(x,0)=\cos{\frac{\pi x}{2}}\\
+
+\displaystyle u(0,t)=1+\frac{1}{2}\arctg{t}
+\end{cases}
+\end{equation}
+
+\section{Аналитическое решение задачи}
+Для получения аналитического решения данного уравнения будем использовать метод характеристик.
+Пусть \exists \begin{displaymath} V(x,t,u)=0  \end{displaymath} -- решение уравнения в неявном виде, где $V$ -- дифференцируемая функция своих переменных, причем $ \frac{\partial V}{\partial u} \neq 0.$ Тогда верно, что
+\begin{displaymath} 
+\frac{\partial u}{\partial t} = -\frac{\partial V / \partial t}{\partial V / \partial u} , \frac{\partial u}{\partial x} = -\frac{\partial V / \partial x}{\partial V / \partial u} ,
+\end{displaymath}
+В результате чего квазилинейное уравнение вида
+\begin{displaymath}
+    a(x,t,u)\frac{\partial u}{\partial t} + b(x,t,u)\frac{\partial u}{\partial x}=f(x,t,u)
+\end{displaymath}
+можно записать в виде линейного однородного уравнения в частных производных для функции $V(x,t,u)$:
+\begin{displaymath}
+    a(x,t,u)\frac{\partial V}{\partial t} + b(x,t,u)\frac{\partial V}{\partial x}+f(x,t,u)\frac{\partial V}{\partial u} = 0.
+\end{displaymath}
+Введем характеристики как линии в пространстве $(x,t,u)$, касательные к которым в каждой точке параллельны вектору $\mathbf{A}(x,t,u) = \left\{a(x,t,u), b(x,t,u), f(x,t,u)\right\}$ в той же точке:
+\begin{displaymath}
+    \begin{cases}
+        t=t(\tau)\\
+        x=x(\tau)\\
+        u=u(\tau)
+    \end{cases}
+    =>
+    \begin{cases}
+        \frac{dt}{d\tau}=a\\
+        \frac{dx}{d\tau}=b\\
+        \frac{du}{d\tau}=f\\
+    \end{cases}
+\end{displaymath}
+Тогда можно записать характеристическое уравнение в общем виде: $\frac{dt}{a}=\frac{dx}{b}=\frac{du}{f}$.\\
+В нашем случае $a(x,t,u)=1, b(x,t,u)=-\frac{2+\cos{u}}{1+(2u+1+\sin{u})^2}, f(x,t,u)=0$, поэтому характеристическое уравнение принимает вид:
+\begin{displaymath}
+    \frac{dt}{1}=-\frac{1+(2u+1+\sin{u})^2}{2+\cos{u}}dx=\frac{du}{0}
+\end{displaymath}
+Решая его, получим первые интегралы:
+\begin{displaymath}
+    \begin{cases}
+        u=C_1\\
+        t + \frac{1+(2u+1+\sin{u})^2}{2+\cos{u}}x=C_2
+    \end{cases}
+\end{displaymath}
+где $C_1, C_2$ -- произвольные константы.
+Общее решение можно записать в виде: $V(x,t,u)=V(C_1,C_2)=0$.\\
+Заметим, что начальные и граничные условия согласуются: $u(x,0)|_{x=0} = u(0,t)|_{t=0}=1$.
+
+Подставим начальные условия:
+\begin{displaymath}
+    \begin{cases}
+        \vspace{0.2cm}
+        u(x,0)=\cos{\frac{\pi x}{2}}=C_1\\
+        \frac{1+(2u+1+\sin{u})^2}{2+\cos{u}}\left(-\frac{2}{\pi}\arccos{C_1} \right)=C_2
+    \end{cases}
+\end{displaymath}
+Минус перед $\frac{2}{\pi}\arccos{C_1}$ стоит потому, что $-1\leq x<0$. По той же причине можно сказать, что $C_1=\cos{\frac{\pi x}{2}}=u \in [-1,0)$.
+Тогда получаем:\\
+\begin{displaymath}
+    -\frac{1+(2u+1+\sin{u})^2}{2+\cos{u}}\frac{2}{\pi}\arccos{u}=t+\frac{1+(2u+1+\sin{u})^2}{2+\cos{u}}x =>\\
+\end{displaymath}
+\begin{displaymath}
+    t+\frac{1+(2u+1+\sin{u})^2}{2+\cos{u}}\left(x+\frac{2}
+    {\pi}\arccos{u}\right)=0, u \in [0,1)
+\end{displaymath}
+
+Теперь подставим граничные условия:
+\begin{displaymath}
+    \begin{cases}
+        u(0,t)=1+\frac{1}{2}\arctg{t}=C_1\\
+        t=C_2
+    \end{cases}
+\end{displaymath}
+Так как $t \geq 0$, то $\arctg{t} \in \left[ 0, \frac{\pi}{2} \right]$, т.е. здесь $C_1 =u \geq 1$.
+Отсюда имеем, что $C_1 = 1 + \frac{1}{2}\arctg{C_2}$, и учитывая, что $u=C_1$, получим:
+\begin{displaymath}
+    u=1+\frac{1}{2}\arctg\left(t+\frac{1+(2u+1+\sin{u})^2}{2+\cos{u}}x\right)
+\end{displaymath}
+Таким образом получаем решение исходной начально-краевой задачи для квазилинейного уравнения переноса в виде неявной функции:
+\begin{displaymath}
+    \begin{cases}
+        \vspace{0,2cm}
+        t+\frac{1+(2u+1+\sin{u})^2}{2+\cos{u}}\left(x+\frac{2}{\pi}\arccos{u}\right)=0, u \in [0, 1)\\
+        u-1-\frac{1}{2}\arctg\left(t+\frac{1+(2u+1+\sin{u})^2}{2+\cos{u}}x\right)=0, u \geq 1
+    \end{cases}
+\end{displaymath}
+
+\begin{figure}[h]
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[width=1.15\linewidth]{анал_реш_t_0}\\(a) При $t=0$}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[width=1.15\linewidth]{анал_реш_t_1}\\(б) При $t=1$}	
+	\end{minipage}
+	%\center{\includegraphics[width = 0.8\linewidth]{проверка}}
+	\caption{Аналитическое решение задачи}
+	\label{anal_resh}
+\end{figure}
+
+\section{Построение характеристик}
+Чтобы определить существует разрыв решения или нет, составим уравнение характеристик, решим его и построим. Если пересечения характеристик на промежутке рассмотрения не будет, то не будет и разрыва решения.
+Вернемся к уравнению характеристик:
+\begin{displaymath}
+     \frac{dt}{1}=-\frac{1+(2u+1+\sin{u})^2}{2+\cos{u}}dx=\frac{du}{0}
+\end{displaymath}
+Решая уравнение, получаем:
+\begin{displaymath}
+    \begin{cases}
+        u=u_0\\
+        \int\limits_{t_0}^t d\tilde t = \int\limits_{x_0}^x -\frac{1+(2u+1+\sin{u})^2}{2+\cos{u}} d\tilde x
+    \end{cases} =>
+\end{displaymath}
+\begin{displaymath}
+    \begin{cases}
+        u=u_0\\
+       t - t_0 =  -\frac{1+(2u+1+\sin{u})^2}{2+\cos{u}}(x-x_0)
+    \end{cases}
+\end{displaymath}
+Точку $(x_0,t_0,u_0)$ выбираем или на луче $x=0$, или на луче $t=0$, т.е. там, где решение известно из начальных или граничных условий. Нужно понять, какой из этих лучей пересекает проекция соответствующей характеристики на плоскость $(x,t)$, соответствующая точке, и какими из дополнительных условий(начальными или граничными) определяется значение $u(x,t)$ в этой точке.\\
+1. Пусть $t_0 = 0, -1\leq x_0 <0$.
+Тогда $u_0 = \cos{\frac{\pi x_0}{2}}$, и получаем уравнение проекций характеристик на плоскость $(x,t)$:
+\begin{displaymath}
+    t=-\frac{1+(2u_0 + 1 + \sin{u_0})^2}{2+\cos{u_0}}(x-x_0)\\
+\end{displaymath}
+\begin{figure}[t]
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[width=1.15\linewidth]{Характеристики при t0=0}\\(a) При $t_0=0$}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[width=1.15\linewidth]{Характеристики при x0=0}\\(б) При $x_0 = 0$}	
+	\end{minipage}
+	%\center{\includegraphics[width = 0.8\linewidth]{проверка}}
+	\caption{Проекции характеристик на плоскость $(x,t)$}
+	\label{character}
+\end{figure}
+2. Пусть $x_0 = 0, t_0 \geq 0$. Тогда $u_0 = 1+\frac{1}{2}\arctg{t_0}$, и получаем уравнение проекций характеристик на плоскость $(x,t)$:
+\begin{displaymath}
+    x =  -\frac{2+\cos{u_0}}{1+(2u_0+1+\sin{u_0})^2}(t-t_0)
+\end{displaymath}
+Как видно из построенных графиков, характеристики не пересекаются в области $x \in [-1, 0), t \in (0, \infty)$, значит, в этой области решение определено однозначно. При $t_0 = 0$ решение определяется начальным условием, при $x_0 = 0$ -- граничным. Тогда можем выбрать $t=5$ в качестве верхней границы временного отрезка, будем решать задачу в этой области.
+\section{Численное решение}
+Заметим, что граничные условия заданы на правой границе. Для реализации разностной схемы требуется сделать такую замену, что граничные условия были бы заданы на левой границе. Сделаем замену $\xi = -x$. Тогда $\frac{\partial}{\partial x} = -\frac{\partial}{\partial \xi}$ и $u(x) = u(-\xi) = \tilde u(\xi)$. Тогда задача \ref{nachzad} запишется в виде:
+\begin{equation}
+\label{chanzad}
+    \begin{cases}
+    \vspace{0.2cm}
+    \displaystyle \frac{\partial \tilde u}{\partial t} + \frac{2+\cos{\tilde u}}{1+(2\tilde u+1+\sin{\tilde u})^2}\frac{\partial \tilde u}{\partial \xi} = 0, 0\leq \xi<1\\
+    \vspace{0.2cm}
+    \displaystyle \tilde u(\xi,0)=\cos{\frac{\pi \xi}{2}}\\
+
+    \displaystyle \tilde u(0,t)=1+\frac{1}{2}\arctg{t}
+\end{cases}
+\end{equation}
+Теперь у нашей задачи граничные условия заданы на левой границе, и мы можем применить разностную схему для ее решения.
+
+Введем в области рассмотрения $\Omega = \left\{(\xi,t):0 < \xi \leq 1, 0\leq t \leq 5\right\}$ равномерную сетку, на которой будем строить разностную схему:
+\begin{displaymath}
+    \omega_{h\tau} = \left\{ \xi = nh, n=0,...,N,h = \frac{1}{N}, t_m = m\tau, m = 0,...,M \right\},
+\end{displaymath}
+где N -- число узлов вдоль оси $\xi$, M -- число узлов вдоль оси $t$, h -- шаг по $\xi$, $\tau$ -- шаг по времени. На сетке $\omega_{h\tau}$ будем рассматривать сеточную функцию $\tilde u_n^m = \tilde u(\xi_n, t_m)$. Перепишем уравнение в \ref{chanzad}, выделив производную сложной функции:
+\begin{displaymath}
+    \frac{\partial \tilde u}{\partial t} + \frac{2+\cos{\tilde u}}{1+(2\tilde u+1+\sin{\tilde u})^2}\frac{\partial \tilde u}{\partial \xi} = \frac{\partial \tilde u}{\partial t} + \frac{\partial \arctg{(2\tilde u +1 + \sin{\tilde u})}}{\partial \xi} = 0
+\end{displaymath}
+Обозначим $U(\tilde u) = \arctg(2\tilde u + 1 + \sin{\tilde u}), U_n^m = U(\telde u_n^m)$ -- вспомогательная функция. Для построения разностной схемы (схемы бегущего счета) рассмотрим аппроксимацию с помощью четырехточечного шаблона:
+\begin{figure}[h]
+	\center{\includegraphics[scale=0.7]{4_точ_модель}}
+	\caption{Четырехточечный шаблон, используемый для аппроксимации}	
+        \label{4_точ_модель}
+\end{figure}
+Тогда аппроксимация для первого уравнения системы имеет вид:
+\begin{displaymath}
+    \frac{\tilde u_n^{m+1}-\tilde u_n^m+\tilde u_{n+1}^{m+1}-\tilde u_{n+1}^m}{2\tau} + \frac{U_{m+1}^{n+1} - U_{m+1}^{n} + U_{m}^{n+1} - U_{m}^{n}}{2h}=0,
+\end{displaymath}
+\begin{displaymath}
+        n = 0,...,N-1, m = 0,...,M-1
+\end{displaymath}
+Для начального и граничного условий:
+\begin{displaymath}
+    \begin{cases}
+        \tilde u_n^0 = \cos{\frac{\pi \xi _n}{2}}\\
+        \tilde u_0^m = 1 + \frac{1}{2}\arctg{t_m}
+    \end{cases}
+\end{displaymath}
+Тогда разностная схема имеет вид:
+\begin{displaymath}
+    \begin{cases}
+         \frac{\tilde u_n^{m+1}-\tilde u_n^m+\tilde u_{n+1}^{m+1}-\tilde u_{n+1}^m}{2\tau} + \frac{U_{m+1}^{n+1} - U_{m+1}^{n} + U_{m}^{n+1} - U_{m}^{n}}{2h}=0\\
+         U_n^m = \arctg{2\tilde u_n^m +1 + \sin{\tilde u_n^m}}\\
+         \tilde u_n^0 = \cos{\frac{\pi \xi _n}{2}}\\
+         \tilde u_0^m = 1 + \frac{1}{2}\arctg{t_m}
+    \end{cases}
+\end{displaymath}
+Полученную задачу будем решать при помощи схемы бегущего счета и итерационного метода Ньютона. Зная значение сеточной функции для некоторого $t_m$, вычислим значение функции для $t_{m+1}$ при $n$, пробегающем все допустимые значения, и учитывая, что $\tilde u_0^{m+1}$ известно из граничного условия. Выпишем уравнение при $n=0$:
+\begin{displaymath}
+    f\left( \tilde u_{1}^{m+1} \right) = \frac{\tilde u_n^{m+1}-\tilde u_n^m+\tilde u_{n+1}^{m+1}-\tilde u_{n+1}^m}{2\tau} + \frac{U_{m+1}^{n+1} - U_{m+1}^{n} + U_{m}^{n+1} - U_{m}^{n}}{2h}=0,
+\end{displaymath}
+\begin{displaymath}
+    f^\prime \left( \tilde u_1^{m+1} \right) = \frac{1}{2\tau} + \frac{2+\cos{\tilde u_1^{m+1}}}{1+\left( 2\tilde u_2^{m+1} + 1 +\sin{\tilde u_1^{m+1}} \right)^2} \frac{1}{2h}
+\end{displaymath}
+Пусть $\tilde u_1^m$ -- приближение к корню $\tilde u_1^{m+1}$. Тогда, используя метод Ньютона, получим:
+\begin{displaymath}
+    \tilde u_1^{m+1} = \tilde u_1^m - \frac{f\left( \tilde u_{1}^{m} \right)}{f^\prime \left( \tilde u_1^{m} \right)}
+\end{displaymath}
+Процесс останавливается при $|\tilde u_1^{m+1} - \tilde u_1^m| < \epsilon$, где $\epsilon$ -- заданная точность.
+\section{Построение численного решения}
+Программа, реализующая решение задачи, написана на языке Matlab в одноименном пакете программ(без использования встроенных функций, способных облегчить решение задачи).
+На Рис. \ref{3D} представлено графическое изображение решения исходной системы, полученное с помощью четырехточечного шаблона.
+\begin{figure}[h]
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[width=1.15\linewidth]{res_left}\\}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[width=1.15\linewidth]{res_right}\\}	
+	\end{minipage}
+	%\center{\includegraphics[width = 0.8\linewidth]{проверка}}
+	\caption{Численное решение в виде 3D графика(для сетки с $N=M=1000$)}
+	\label{3D}
+\end{figure}
+Так же для наглядности на Рис. \ref{2D} изображены зависимости $u(x)$ в фиксированные моменты $t$ ($t=1, t=2, t=3, t=4$).
+\begin{figure}[h]
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[scale=0.15]{res_t_1}\\(a) При $t=1$}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[scale=0.15]{res_t_2}\\(б) При $t=2$}	
+	\end{minipage}
+        \hfill
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[scale=0.15]{res_t_3}\\(в) При $t=3$}
+	\end{minipage}
+	\hfill
+        \begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[scale=0.15]{res_t_4}\\(г) При $t=4$}
+	\end{minipage}
+	\caption{Численное решение в виде 2D графиков}
+	\label{2D}
+\end{figure}
+\section{Верификация работы программы}
+
+Для того, чтобы убедиться в правильности работы программы, сравним численное решение с аналитическим в фиксированные моменты $t$. На Рис. \ref{res_check} представлены графики аналитического и численного решений в моменты времени $t=1$ и $t=3$.\\
+\begin{figure}[h!]
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[width=1.15\linewidth]{сравн_t_1}\\(a) При $t=1$}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[width=1.15\linewidth]{сравн_t_3}\\(б) При $t=3$}	
+	\end{minipage}
+	%\center{\includegraphics[width = 0.8\linewidth]{проверка}}
+	\caption{Сравнение численного и аналитического решений}
+	\label{res_check}
+\end{figure}
+
+Видим, что ошибка минимальна. Построим относительную ошибку для обоих представленных случаев (Рис. \ref{err}). Из графиков видно, что относительная ошибка не превышает $0.1\%$.
+%\newpage
+\begin{figure}[h]
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[width=1.15\linewidth]{ошиб_t_1}\\(a) При $t=1$}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[width=1.15\linewidth]{ошиб_t_3}\\(б) При $t=3$}	
+	\end{minipage}
+	%\center{\includegraphics[width = 0.8\linewidth]{проверка}}
+	\caption{Относительная ошибка численного решения по отношению к аналитическому}
+	\label{err}
+\end{figure}
+
+Еще одним способом проверки корректности работы программы является сравнение численного решения с другим численным решением, но использующим другой шаблон. На Рис. \ref{schem} представлены численные решения в моменты времени $t=1$ и $t=3$, полученные с помощью четырехточечной и трехточечной схем. Отличия видны лишь в точке излома $u=1$.
+\begin{figure}[h]
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[width=1.15\linewidth]{схемы_t_1}\\(a) При $t=1$}
+	\end{minipage}
+	\hfill
+	\begin{minipage}[h]{0.49\linewidth}
+	\center{\includegraphics[width=1.15\linewidth]{схемы_t_3}\\(б) При $t=3$}	
+	\end{minipage}
+	%\center{\includegraphics[width = 0.8\linewidth]{проверка}}
+	\caption{Сравнение численных решений, полученных разными схемами}
+	\label{schem}
+\end{figure}
+
+\section{Заключение}\par
+ В настоящей работе было проведено численное решение начально-краевой задачи для квазилинейного уравнения переноса с использованием схемы бегущего счета и итерационных методов.\\ 
+Перед выполнением численных расчетов было проведено аналитическое решение поставленной задачи и исследование поведения проекций характеристик на плоскость $(x,t)$. Отсутствие их пересечений на области рассмотрения говорит о том, что решение определено однозначно.  Для поиска решения в области $-1\leq x<0, 0<t\leq 5$ была введена равномерная сетка с шагом $h$ по $x$ и шагом $\tau$ по $t$. Шаблон используемой схемы бегущего счета представлен на Рис. \ref{4_точ_модель}. Для решения трансцендентного уравнения относительно искомого значения сеточной функции на каждом шаге использовался итерационный метод Ньютона.\\
+Программа была написана на языке Matlab в одноименном пакете программ (без использования встроенных функций). Количество точек по осям $t$ и $x$ было выбрано равным 1000 с шагами $\tau = 0.0025$ и $h=0.001$ соответственно. Полный код программы содержится в Приложении.
+Далее была проведена проверка результатов вычислений. Для этого было проведено сравнение численного решения с аналитическим и посчитана относительная ошибка. Полученное решение имеет несущественные отличия (до $0.1\%$) от аналитического. Также было проведено сравнение двух численных решений, полученных четрехточечным и трехточечным схемами. Отличие этих решений заметно ли в точке излома $u=1$. 
+
+\section{Приложение}
+\textbf{Программа, реализующая численное решение}
+\begin{verbatim}
+% задаем двумерную сетку
+N_t = 1000;                     % количество точек по времени
+N_x = 1000;                     % количество точек по x
+epsilon = 0.001;                % точность для метода Ньютона
+h = 1/(N_x - 1);                % шаг по x
+tau = 5/(N_t - 1);              % шаг по времени
+x=(-1:h:0);                     % сетка по x
+t = 0:tau:5;                    % сетка по времени
+ksi = (0:h:1);
+% задаем массив для неизвестной функции
+u = zeros(N_x, N_t);
+u(1, :) = 1 + 0.5*atan(t);        % граничное условие
+u(:, 1) = cos(0.5*pi*ksi);        % начальное условие
+
+for i = 2:N_x
+   for j = 2:N_t
+   u(i, j) = newton(u(i-1, j), u(i-1, j-1), u(i, j-1), epsilon, tau, h);
+   end
+end
+
+figure(30)
+    surf(-ksi, t, u, EdgeColor='none');
+    xlabel('x', 'FontSize',16)
+    ylabel('t', 'FontSize',16)
+    zlabel('u', 'FontSize',16)
+    colorbar;
+    grid on    
+%2D графики
+figure(31)
+    plot(-ksi, u(:, 2000), 'LineWidth', 2)
+    xlim([-1 0])
+    grid on
+    xlabel('x', 'FontSize',16)
+    ylabel('t', 'FontSize',16)
+    set(findall(figure(31),'type','axes'),'fontsize',15)
+    
+function U = U_func(x)
+% Функция, стоящая под знаком частной производной по x
+    U = atan(2*x + 1 + sin(x));
+end
+
+function DU = DU_func(x)
+% производная функции U
+    DU = (2 + cos(x))/(1 + (2*x + 1 + sin(x))^2);
+end
+
+function f = f_func(x, a, b, c, tau, h)
+    %f = (x - a)/tau + (U_func(x) - U_func(b))/h;
+    f = (a-b+x-c)/(2*tau) + (U_func(x) - U_func(a) + U_func(c) - U_func(b))/(2*h);
+end
+
+function Df = Df_func(x, tau, h)
+    Df = 1/(2*tau) + DU_func(x)/(2*h);
+end
+
+function n = newton(a, b, c, epsilon, tau, h)
+    n = b;
+    du = epsilon + 1;
+    while du > epsilon
+        u = n;
+        n = u - f_func(u, a, b, c, tau, h)/Df_func(u, tau, h);
+        du = abs(u - n);
+    end
+end
+\end{verbatim}
+
+
+%\bibliographystyle{alpha}
+%\bibliography{sample}
+
+\end{document}
